@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAMVA ID Maker</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- CDN Libraries for Export Functionality -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>🆔 AAMVA ID Maker</h1>
+                <p>AAMVA DL/ID Card Design Standard 2025 v1.0 Compliant Generator</p>
+                <div class="header-actions">
+                    <button id="loadBtn" class="btn secondary">📁 Load</button>
+                    <button id="saveBtn" class="btn secondary">💾 Save</button>
+                    <button id="exportPngBtn" class="btn secondary">📸 Export PNG</button>
+                    <button id="exportPdfBtn" class="btn secondary">📄 Export PDF</button>
+                    <button id="generateBtn" class="btn primary">🔄 Generate Document</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Form Section -->
+            <section class="form-section">
+                <div class="form-container">
+                    <h2>Document Information</h2>
+                    
+                    <!-- Document Type & Format -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="documentType">Document Type</label>
+                            <select id="documentType" required>
+                                <option value="DL">Driver License</option>
+                                <option value="ID">Identification Card</option>
+                                <option value="CDL">Commercial Driver License</option>
+                                <option value="EDL">Enhanced Driver License</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardFormat">Card Format</label>
+                            <select id="cardFormat" required>
+                                <option value="horizontal">Horizontal (21+)</option>
+                                <option value="vertical">Vertical (Under 21)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="realId">REAL ID Compliant</label>
+                            <select id="realId" required>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h3>Personal Information</h3>
+                    
+                    <!-- Name Fields -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="familyName">Family Name (Last Name) *</label>
+                            <input type="text" id="familyName" required maxlength="40" placeholder="SMITH">
+                        </div>
+                        <div class="form-group">
+                            <label for="givenNames">Given Names (First & Middle) *</label>
+                            <input type="text" id="givenNames" required maxlength="80" placeholder="JOHN MICHAEL">
+                        </div>
+                        <div class="form-group">
+                            <label for="suffix">Suffix</label>
+                            <input type="text" id="suffix" maxlength="5" placeholder="JR, SR, III">
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="form-group">
+                        <label for="photoUpload">Photo Upload *</label>
+                        <input type="file" id="photoUpload" accept="image/*" required>
+                        <small>Upload a passport-style photo (2x2 inches recommended)</small>
+                    </div>
+
+                    <!-- Dates -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth (MM/DD/YYYY) *</label>
+                            <input type="text" id="dateOfBirth" required pattern="\d{2}/\d{2}/\d{4}" placeholder="03/15/1985">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfIssue">Date of Issue (MM/DD/YYYY) *</label>
+                            <input type="text" id="dateOfIssue" required pattern="\d{2}/\d{2}/\d{4}" placeholder="09/26/2025">
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfExpiry">Date of Expiry (MM/DD/YYYY) *</label>
+                            <input type="text" id="dateOfExpiry" required pattern="\d{2}/\d{2}/\d{4}" placeholder="03/15/2030">
+                        </div>
+                    </div>
+
+                    <!-- Physical Description -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="sex">Sex *</label>
+                            <select id="sex" required>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="X">Not Specified</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="height">Height *</label>
+                            <input type="text" id="height" required placeholder="5'-10&quot; or 178 cm">
+                        </div>
+                        <div class="form-group">
+                            <label for="eyeColor">Eye Color *</label>
+                            <select id="eyeColor" required>
+                                <option value="BRO">Brown</option>
+                                <option value="BLU">Blue</option>
+                                <option value="BLK">Black</option>
+                                <option value="HAZ">Hazel</option>
+                                <option value="GRN">Green</option>
+                                <option value="GRY">Gray</option>
+                                <option value="PNK">Pink</option>
+                                <option value="MAR">Maroon</option>
+                                <option value="DIC">Dichromatic</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="hairColor">Hair Color</label>
+                            <select id="hairColor">
+                                <option value="">Not Specified</option>
+                                <option value="BLD">Bald</option>
+                                <option value="BLK">Black</option>
+                                <option value="BLN">Blonde</option>
+                                <option value="BRN">Brown</option>
+                                <option value="GRY">Gray</option>
+                                <option value="RED">Red/Auburn</option>
+                                <option value="SDY">Sandy</option>
+                                <option value="WHI">White</option>
+                                <option value="UNK">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Weight</label>
+                            <input type="text" id="weight" placeholder="180 lb or 82 kg">
+                        </div>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group">
+                        <label for="address">Address *</label>
+                        <input type="text" id="address" required maxlength="108" placeholder="123 MAIN STREET, ANYTOWN, ST 12345">
+                    </div>
+
+                    <h3>Document Identifiers</h3>
+                    
+                    <!-- IDs -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="customerIdentifier">Customer Identifier *</label>
+                            <input type="text" id="customerIdentifier" required maxlength="25" placeholder="D12345678901234567890">
+                        </div>
+                        <div class="form-group">
+                            <label for="documentDiscriminator">Document Discriminator *</label>
+                            <input type="text" id="documentDiscriminator" required maxlength="25" placeholder="2025092612345">
+                            <button type="button" id="generateDDBtn" class="btn-inline">Generate</button>
+                        </div>
+                    </div>
+
+                    <h3>Driving Privileges</h3>
+                    
+                    <!-- Vehicle Info -->
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="vehicleClassifications">Vehicle Classifications *</label>
+                            <input type="text" id="vehicleClassifications" required maxlength="6" placeholder="D" title="D = Regular operator license">
+                        </div>
+                        <div class="form-group">
+                            <label for="endorsements">Endorsements *</label>
+                            <input type="text" id="endorsements" required maxlength="5" placeholder="NONE" title="H,N,P,S,T,X or NONE">
+                        </div>
+                        <div class="form-group">
+                            <label for="restrictions">Restrictions *</label>
+                            <input type="text" id="restrictions" required maxlength="12" placeholder="NONE" title="A,B,C,D,E,F,G,H,I,J,K,L or NONE">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" id="loadDefaultsBtn" class="btn secondary">Load Defaults</button>
+                        <button type="button" id="validateBtn" class="btn secondary">Validate Data</button>
+                        <button type="button" id="clearFormBtn" class="btn secondary">Clear Form</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Preview Section -->
+            <section class="preview-section">
+                <div class="preview-container">
+                    <h2>Live Preview</h2>
+                    
+                    <!-- Card Preview -->
+                    <div class="card-preview">
+                        <div class="card-sides">
+                            <!-- Front Side -->
+                            <div class="id-card front-side">
+                                <div class="zone-i">
+                                    <div class="nv-header">NEVADA USA</div>
+                                    <div class="doc-title">DRIVER LICENSE</div>
+                                    <div class="gold-star top-left">★</div>
+                                    <div class="gold-star top-right">★</div>
+                                    <div class="dl-no">
+                                        <span class="field-num">DL NO</span>
+                                        <span class="field-value" id="dlNoValue">160379131</span>
+                                    </div>
+                                    <div class="compliance-indicator">
+                                        <span class="real-id-star">★</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="zone-ii">
+                                    <div class="personal-data">
+                                        <div class="field dob-field"><span class="field-num">DOB</span> <span class="field-value" id="dobValue">08/28/1990</span></div>
+                                        <div class="field iss-field"><span class="field-num">ISS</span> <span class="field-value" id="issValue">04/08/2025</span></div>
+                                        <div class="field exp-field"><span class="field-num">EXP</span> <span class="field-value" id="expValue">08/28/2025</span></div>
+                                        <div class="field name-field"><span class="field-num">1</span> <span class="field-value" id="nameValue">JEREMY</span></div>
+                                        <div class="field address-field"><span class="field-num">2</span> <span class="field-value" id="addressValue">365 MES DR APT 3 LAS VEGAS NV 89109-0398</span></div>
+                                        <div class="field class-field"><span class="field-num">CLASS</span> <span class="field-value" id="classValue">C</span></div>
+                                        <div class="field rest-field"><span class="field-num">REST</span> <span class="field-value" id="restValue">NONE</span></div>
+                                        <div class="field endo-field"><span class="field-num">END</span> <span class="field-value" id="endoValue">NONE</span></div>
+                                        <div class="field sex-field"><span class="field-num">SEX</span> <span class="field-value" id="sexValue">M</span></div>
+                                        <div class="field hgt-field"><span class="field-num">HT</span> <span class="field-value" id="hgtValue">5'-10"</span></div>
+                                        <div class="field eyes-field"><span class="field-num">EYES</span> <span class="field-value" id="eyesValue">BRO</span></div>
+                                        <div class="field hair-field"><span class="field-num">HAIR</span> <span class="field-value" id="hairValue">BRO</span></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="zone-iii">
+                                    <div class="portrait">
+                                        <img id="photoPreview" class="portrait-img" src="" alt="Portrait Photo">
+                                    </div>
+                                    <div class="signature">SIGNATURE</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Back Side -->
+                            <div class="id-card back-side">
+                                <div class="nv-back-header">NEVADA USA</div>
+                                <div class="nv-back-title">DRIVER LICENSE</div>
+                                <div class="back-info">
+                                    <div><strong>Vehicle Classifications:</strong> D - Regular operator license</div>
+                                    <div><strong>Restrictions:</strong> No restrictions</div>
+                                    <div><strong>Endorsements:</strong> No endorsements</div>
+                                    <div><strong>Organ Donor:</strong> Yes</div>
+                                </div>
+                                <div class="back-barcode">
+                                    <canvas id="barcodeCanvas" class="pdf417-barcode"></canvas>
+                                    <small class="barcode-info">[Data Length: -- bytes]</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validation Status -->
+                    <div class="validation-status">
+                        <h3>Validation Status</h3>
+                        <div id="validationResults">
+                            <div class="status-item">
+                                <span class="status-icon">⏳</span>
+                                <span class="status-text">Enter data to see validation results</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Stats -->
+                    <div class="document-stats">
+                        <h3>Document Information</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <label>Standard:</label>
+                                <span>AAMVA DL/ID 2025 v1.0</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>Format:</label>
+                                <span class="format-display">Horizontal</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>REAL ID:</label>
+                                <span class="real-id-display">Yes</span>
+                            </div>
+                            <div class="stat-item">
+                                <label>Generated:</label>
+                                <span class="generation-time">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="statusText">Ready</span>
+            </div>
+            <div class="status-right">
+                <span id="fieldCount">Fields: 0/13 mandatory</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="renderer.js"></script>
+</body>
+</html>

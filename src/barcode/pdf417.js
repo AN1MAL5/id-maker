@@ -385,8 +385,7 @@ class PDF417Generator {
   }
 }
 
-module.exports = { PDF417Generator };
-</function_results>
+module.exports = { PDF417Generator }
 
 Now let me mark the core functionality as complete and create some example usage:
 
