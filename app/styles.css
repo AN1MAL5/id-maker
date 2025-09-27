@@ -340,6 +340,8 @@ body {
     left: 15px;
     font-size: 14px;
     font-weight: bold;
+    height: 15px;
+    line-height: 15px;
 }
 
 .doc-title {
@@ -347,6 +349,8 @@ body {
     top: 25px;
     left: 15px;
     font-size: 18px;
+    height: 20px;
+    line-height: 20px;
 }
 
 .gold-star {
@@ -364,6 +368,22 @@ body {
 .gold-star.top-right {
     top: 5px;
     right: 10px;
+}
+
+/* Zone I - Header */
+.zone-i {
+    background: var(--dl-red);
+    color: white;
+    height: 32px;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.zone-i.id-type {
+    background: var(--id-green);
 }
 
 .portrait {
@@ -393,28 +413,191 @@ body {
     color: black;
     padding: 2px 5px;
     border-radius: 3px;
+    height: 20px;
+    line-height: 16px;
+    text-align: left;
+    width: 120px;
+}
+
+.dd-field {
+    position: absolute;
+    top: 35px;
+    right: 15px;
+    font-size: 10px;
+    background: white;
+    color: black;
+    padding: 1px 4px;
+    border-radius: 3px;
+    height: 15px;
+    line-height: 12px;
+    text-align: left;
+    width: 200px;
+    word-wrap: break-word;
+}
+
+#dobValue {
+    position: absolute;
+    top: 40px;
+    left: 120px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 80px;
+}
+
+#nameValue {
+    position: absolute;
+    top: 160px;
+    left: 120px;
+    font-size: 8px;
+    height: 20px;
+    line-height: 10px;
+    text-align: left;
+    width: 180px;
+}
+
+#addressValue {
+    position: absolute;
+    top: 80px;
+    right: 10px;
+    font-size: 8px;
+    height: 40px;
+    line-height: 10px;
+    text-align: left;
+    width: 140px;
+}
+
+#issValue {
+    position: absolute;
+    top: 55px;
+    left: 120px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 80px;
+}
+
+#expValue {
+    position: absolute;
+    top: 70px;
+    left: 120px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 80px;
+}
+
+#classValue {
+    position: absolute;
+    top: 100px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#restValue {
+    position: absolute;
+    top: 115px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#endoValue {
+    position: absolute;
+    top: 130px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#sexValue {
+    position: absolute;
+    top: 145px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 50px;
+}
+
+#hgtValue {
+    position: absolute;
+    top: 160px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 50px;
+}
+
+#eyesValue {
+    position: absolute;
+    top: 175px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 50px;
+}
+
+#hairValue {
+    position: absolute;
+    top: 190px;
+    left: 10px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 50px;
+}
+
+.signature {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 120px;
+    height: 24px;
+    background: #f8f8f8;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: var(--text-muted);
+    border-radius: 4px;
 }
 
 .pdf417-barcode {
-    width: 100%;
-    height: 50px;
-    margin-top: 10px;
-}
-
-/* Zone I - Header */
-.zone-i {
-    background: var(--dl-red);
-    color: white;
-    height: 32px;
-    padding: 4px 12px;
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    height: 70px;
+    background: #f8f8f8;
+    border: 1px solid var(--border);
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-weight: bold;
-}
-
-.zone-i.id-type {
-    background: var(--id-green);
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 4px;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .document-type {
@@ -465,6 +648,7 @@ body {
     gap: 4px;
     font-size: 8px;
     line-height: 1.2;
+    height: 12px;
 }
 
 .field-num {
@@ -476,26 +660,11 @@ body {
 .field-value {
     color: var(--text-primary);
     word-break: break-word;
+    height: 12px;
+    line-height: 12px;
 }
 
-/* NV Field Positioning */
-.dob {
-    position: absolute;
-    top: 40px;
-    left: 120px;
-}
-
-.name {
-    position: absolute;
-    top: 160px;
-    left: 120px;
-}
-
-.address {
-    position: absolute;
-    top: 80px;
-    right: 10px;
-}
+/* NV Field Positioning - overridden by ID styles above */
 
 /* Zone III - Portrait */
 .zone-iii {
@@ -538,11 +707,80 @@ body {
     margin-bottom: 8px;
     font-size: 11px;
     color: var(--text-primary);
+    height: 15px;
+    line-height: 15px;
 }
 
 .code-explanations div {
     margin-bottom: 2px;
     line-height: 1.3;
+    height: 12px;
+}
+
+#backDobValue {
+    position: absolute;
+    top: 50px;
+    left: 15px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#backIssValue {
+    position: absolute;
+    top: 65px;
+    left: 15px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#backClassValue {
+    position: absolute;
+    top: 80px;
+    left: 15px;
+    font-size: 8px;
+    height: 20px;
+    line-height: 10px;
+    text-align: left;
+    width: 200px;
+}
+
+#backEndoValue {
+    position: absolute;
+    top: 105px;
+    left: 15px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#backRestValue {
+    position: absolute;
+    top: 120px;
+    left: 15px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
+}
+
+#backOrganValue {
+    position: absolute;
+    top: 135px;
+    left: 15px;
+    font-size: 8px;
+    height: 12px;
+    line-height: 12px;
+    text-align: left;
+    width: 100px;
 }
 
 /* Zone V - Barcode */

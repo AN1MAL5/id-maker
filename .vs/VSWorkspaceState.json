@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\app",
+    "\\app\\assets",
+    "\\docs",
+    "\\examples",
+    "\\src",
+    "\\src\\barcode",
+    "\\src\\layout",
+    "\\templates",
+    "\\tests"
+  ],
+  "PreviewInSolutionExplorer": false
+}

@@ -24,11 +24,14 @@ class IDGenerator {
   compile(components) {
     const { data, layout, barcode, metadata } = components;
 
+    // Generate AAMVA PDF417 string
+    const aamvaString = this.generateAAMVAString(data);
+
     // Generate document structure following AAMVA standards
     const document = {
       // Document Header
       header: this.generateHeader(metadata),
-      
+
       // Human-readable data (Zones I-IV)
       humanReadable: {
         zoneI: this.generateZoneI(data),
@@ -36,25 +39,26 @@ class IDGenerator {
         zoneIII: this.generateZoneIII(data),
         zoneIV: this.generateZoneIV(data)
       },
-      
+
       // Machine-readable data (Zone V)
       machineReadable: {
         zoneV: {
           pdf417: barcode,
+          aamvaString: aamvaString,
           format: 'PDF417',
           standard: 'ISO/IEC 15438'
         }
       },
-      
+
       // Layout information
       layout: layout,
-      
+
       // Security features
       security: this.generateSecurityFeatures(data),
-      
+
       // Compliance information
       compliance: this.generateComplianceInfo(data),
-      
+
       // Metadata
       metadata: {
         ...metadata,
@@ -66,6 +70,54 @@ class IDGenerator {
     };
 
     return document;
+  }
+
+  /**
+   * Generate AAMVA PDF417 string
+   */
+  generateAAMVAString(data) {
+    // AAMVA PDF417 format: @\n + header + subfile designator + data elements
+    let aamvaString = '@\n';
+
+    // Header: ANSI 6360000102DL00410278NV00100
+    // Format: ANSI space jurisdiction version AAMVA version issue date expiration date
+    const jurisdiction = '6360000102DL00410278NV00100';
+    aamvaString += jurisdiction + '\n';
+
+    // Subfile designator: DL (Driver License)
+    aamvaString += 'DL\n';
+
+    // Data elements
+    aamvaString += `DCS${data.familyName}\n`;
+    aamvaString += `DAC${data.givenNames}\n`;
+    aamvaString += `DAD${data.middleName || ''}\n`;
+    aamvaString += `DBD${data.dateOfBirth.replace(/\//g, '')}\n`;
+    aamvaString += `DBB${data.dateOfBirth.replace(/\//g, '')}\n`; // Duplicate for some formats
+    aamvaString += `DBA${data.dateOfExpiry.replace(/\//g, '')}\n`;
+    aamvaString += `DBC${data.sex}\n`;
+    aamvaString += `DAY${data.eyeColor}\n`;
+    aamvaString += `DAU${data.height}\n`;
+    aamvaString += `DAG${data.address}\n`;
+    aamvaString += `DAI${data.city || ''}\n`;
+    aamvaString += `DAJ${data.state || 'NV'}\n`;
+    aamvaString += `DAK${data.zip || ''}\n`;
+    aamvaString += `DCF${data.documentDiscriminator || ''}\n`;
+    aamvaString += `DCG${'USA'}\n`;
+    aamvaString += `DCH${data.customerIdentifier}\n`;
+    aamvaString += `DCI${'NV'}\n`;
+    aamvaString += `DCJ${data.documentType}\n`;
+    aamvaString += `DCK${data.customerIdentifier.slice(-9)}\n`; // DL No
+    aamvaString += `DCL${data.vehicleClassifications || 'C'}\n`;
+    aamvaString += `DCM${data.restrictions || 'NONE'}\n`;
+    aamvaString += `DCN${data.endorsements || 'NONE'}\n`;
+    aamvaString += `DCO${data.organDonor ? '1' : '0'}\n`;
+    aamvaString += `DCP${data.veteran ? '1' : '0'}\n`;
+    aamvaString += `DCQ${data.hairColor || ''}\n`;
+    aamvaString += `DCR${data.placeOfBirth || ''}\n`;
+    aamvaString += `DCT${data.familyName}\n`; // Duplicate
+    aamvaString += `DCU${data.auditInformation || ''}\n`;
+
+    return aamvaString;
   }
 
   /**
@@ -94,12 +146,12 @@ class IDGenerator {
 
     return {
       documentType: documentTypes[data.documentType] || 'DRIVER LICENSE',
-      issuingJurisdiction: 'SAMPLE STATE', // This would be configurable
+      issuingJurisdiction: 'NEVADA',
       countryCode: 'USA',
       backgroundDesign: {
-        color: data.documentType === 'ID' ? 'Green' : 'Red',
-        pantone: data.documentType === 'ID' ? '368' : '198',
-        tintPercentage: 30
+        color: 'Blue',
+        pantone: '288',
+        tintPercentage: 20
       }
     };
   }
@@ -112,14 +164,16 @@ class IDGenerator {
       // Mandatory Data Elements
       familyName: data.familyName,
       givenNames: data.givenNames,
+      fullName: `${data.givenNames} ${data.familyName}`.toUpperCase(),
       suffix: data.suffix || null,
       dateOfBirth: data.dateOfBirth,
       dateOfIssue: data.dateOfIssue,
       dateOfExpiry: data.dateOfExpiry,
       customerIdentifier: data.customerIdentifier,
+      dlNo: data.customerIdentifier.slice(-9),
       documentDiscriminator: data.documentDiscriminator,
       address: data.address,
-      vehicleClassifications: data.vehicleClassifications,
+      vehicleClassifications: data.vehicleClassifications || 'C',
       endorsements: data.endorsements,
       restrictions: data.restrictions,
       sex: data.sex,
@@ -150,6 +204,7 @@ class IDGenerator {
     return {
       portrait: {
         present: true,
+        data: data.photo || null,
         requirements: {
           format: 'Color digital reproduction',
           pose: 'Full-face frontal',
@@ -220,16 +275,20 @@ class IDGenerator {
    */
   generateComplianceInfo(data) {
     const compliance = data.compliance || {};
-    
+
     return {
       aamvaCompliant: true,
       aamvaVersion: this.version,
-      realId: compliance.realId || false,
-      realIdIndicator: compliance.realId ? 'Gold Star' : 'NOT FOR REAL ID',
+      realId: compliance.realId || true,
+      realIdIndicator: (compliance.realId || true) ? 'Gold Star' : 'NOT FOR REAL ID',
       limitedDuration: compliance.limitedDuration || false,
       enhanced: compliance.enhanced || false,
       cdl: data.documentType === 'CDL',
-      nonDomiciled: compliance.nonDomiciled || false
+      nonDomiciled: compliance.nonDomiciled || false,
+      jurisdictionSpecific: {
+        state: 'NV',
+        version: '01'
+      }
     };
   }
 

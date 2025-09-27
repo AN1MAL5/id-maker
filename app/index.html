@@ -215,7 +215,7 @@
                                     <div class="gold-star top-right">★</div>
                                     <div class="dl-no">
                                         <span class="field-num">DL NO</span>
-                                        <span class="field-value" id="dlNoValue">160379131</span>
+                                        <span class="field-value" id="dlNoValue"></span>
                                     </div>
                                     <div class="compliance-indicator">
                                         <span class="real-id-star">★</span>
@@ -224,18 +224,18 @@
                                 
                                 <div class="zone-ii">
                                     <div class="personal-data">
-                                        <div class="field dob-field"><span class="field-num">DOB</span> <span class="field-value" id="dobValue">08/28/1990</span></div>
-                                        <div class="field iss-field"><span class="field-num">ISS</span> <span class="field-value" id="issValue">04/08/2025</span></div>
-                                        <div class="field exp-field"><span class="field-num">EXP</span> <span class="field-value" id="expValue">08/28/2025</span></div>
-                                        <div class="field name-field"><span class="field-num">1</span> <span class="field-value" id="nameValue">JEREMY</span></div>
-                                        <div class="field address-field"><span class="field-num">2</span> <span class="field-value" id="addressValue">365 MES DR APT 3 LAS VEGAS NV 89109-0398</span></div>
-                                        <div class="field class-field"><span class="field-num">CLASS</span> <span class="field-value" id="classValue">C</span></div>
-                                        <div class="field rest-field"><span class="field-num">REST</span> <span class="field-value" id="restValue">NONE</span></div>
-                                        <div class="field endo-field"><span class="field-num">END</span> <span class="field-value" id="endoValue">NONE</span></div>
-                                        <div class="field sex-field"><span class="field-num">SEX</span> <span class="field-value" id="sexValue">M</span></div>
-                                        <div class="field hgt-field"><span class="field-num">HT</span> <span class="field-value" id="hgtValue">5'-10"</span></div>
-                                        <div class="field eyes-field"><span class="field-num">EYES</span> <span class="field-value" id="eyesValue">BRO</span></div>
-                                        <div class="field hair-field"><span class="field-num">HAIR</span> <span class="field-value" id="hairValue">BRO</span></div>
+                                        <div class="field dob-field"><span class="field-num">DOB</span> <span class="field-value" id="dobValue"></span></div>
+                                        <div class="field iss-field"><span class="field-num">ISS</span> <span class="field-value" id="issValue"></span></div>
+                                        <div class="field exp-field"><span class="field-num">EXP</span> <span class="field-value" id="expValue"></span></div>
+                                        <div class="field name-field"><span class="field-num">1</span> <span class="field-value" id="nameValue"></span></div>
+                                        <div class="field address-field"><span class="field-num">2</span> <span class="field-value" id="addressValue"></span></div>
+                                        <div class="field class-field"><span class="field-num">CLASS</span> <span class="field-value" id="classValue"></span></div>
+                                        <div class="field rest-field"><span class="field-num">REST</span> <span class="field-value" id="restValue"></span></div>
+                                        <div class="field endo-field"><span class="field-num">END</span> <span class="field-value" id="endoValue"></span></div>
+                                        <div class="field sex-field"><span class="field-num">SEX</span> <span class="field-value" id="sexValue"></span></div>
+                                        <div class="field hgt-field"><span class="field-num">HT</span> <span class="field-value" id="hgtValue"></span></div>
+                                        <div class="field eyes-field"><span class="field-num">EYES</span> <span class="field-value" id="eyesValue"></span></div>
+                                        <div class="field hair-field"><span class="field-num">HAIR</span> <span class="field-value" id="hairValue"></span></div>
                                     </div>
                                 </div>
                                 
@@ -252,10 +252,12 @@
                                 <div class="nv-back-header">NEVADA USA</div>
                                 <div class="nv-back-title">DRIVER LICENSE</div>
                                 <div class="back-info">
-                                    <div><strong>Vehicle Classifications:</strong> D - Regular operator license</div>
-                                    <div><strong>Restrictions:</strong> No restrictions</div>
-                                    <div><strong>Endorsements:</strong> No endorsements</div>
-                                    <div><strong>Organ Donor:</strong> Yes</div>
+                                    <div class="back-dob"><strong>DOB:</strong> <span id="backDobValue"></span></div>
+                                    <div class="back-iss"><strong>ISS:</strong> <span id="backIssValue"></span></div>
+                                    <div class="back-class"><strong>CLASS:</strong> <span id="backClassValue"></span></div>
+                                    <div class="back-endo"><strong>ENDORSEMENTS:</strong> <span id="backEndoValue"></span></div>
+                                    <div class="back-rest"><strong>RESTRICTIONS:</strong> <span id="backRestValue"></span></div>
+                                    <div class="back-organ"><strong>ORGAN DONOR:</strong> <span id="backOrganValue"></span></div>
                                 </div>
                                 <div class="back-barcode">
                                     <canvas id="barcodeCanvas" class="pdf417-barcode"></canvas>
