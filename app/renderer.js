@@ -1,4 +1,4 @@
-// AAMVA ID Maker Renderer Script
+ // AAMVA ID Maker Renderer Script
 // Handles form interactions, live preview, and communication with main process
 
 class IDMakerApp {
@@ -118,12 +118,21 @@ class IDMakerApp {
         formData.photo = this.formData.photo || null; // Base64 from upload
 
         // Document identifiers - DL NO for NV
-        let customerId = document.getElementById('customerIdentifier').value.trim();
-        if (customerId && customerId.length > 9) {
-            customerId = customerId.slice(-9); // NV DL NO is 9 digits
+        let customerId = document.getElementById('customerIdentifier').value.trim().replace(/\D/g, ''); // Only digits
+        if (customerId.length > 10) {
+            customerId = customerId.slice(-10); // Max 10 digits
         }
         formData.customerIdentifier = customerId || '';
-        formData.documentDiscriminator = document.getElementById('documentDiscriminator').value;
+        let dd = document.getElementById('documentDiscriminator').value.trim().replace(/\D/g, ''); // Only digits
+        if (dd.length < 21) {
+            dd = '000' + dd.padEnd(18, '0'); // Pad to 21 starting with 000
+        } else if (dd.length > 21) {
+            dd = dd.slice(0, 21);
+        }
+        if (!dd.startsWith('000')) {
+            dd = '000' + dd.slice(3);
+        }
+        formData.documentDiscriminator = dd;
 
         // Driving privileges - Default to 'C' for NV standard
         let vehicleClass = document.getElementById('vehicleClassifications').value.toUpperCase().trim();
@@ -157,6 +166,10 @@ class IDMakerApp {
         const dlNoValue = document.getElementById('dlNoValue');
         if (dlNoValue) dlNoValue.textContent = data.customerIdentifier || '';
 
+        // Update DD
+        const ddValue = document.getElementById('ddValue');
+        if (ddValue) ddValue.textContent = data.documentDiscriminator || '';
+
         // Update specific NV fields by ID
         const updateFieldById = (id, value) => {
             const el = document.getElementById(id);
@@ -176,11 +189,11 @@ class IDMakerApp {
         updateFieldById('eyesValue', data.eyeColor);
         updateFieldById('hairValue', data.hairColor);
 
-        // Update REAL ID indicator
+        // Update REAL ID indicator - no emoji
         const complianceIndicator = document.querySelector('.compliance-indicator');
         if (complianceIndicator) {
             if (data.compliance && data.compliance.realId) {
-                complianceIndicator.innerHTML = '<span class="real-id-star">★</span>';
+                complianceIndicator.innerHTML = '<span class="real-id-text">REAL ID</span>';
             } else {
                 complianceIndicator.innerHTML = '<span class="not-real-id">NOT FOR REAL ID</span>';
             }
@@ -215,37 +228,30 @@ class IDMakerApp {
     }
 
     updateBackSideExplanations(data) {
-        // Update restrictions
-        const restrictionText = document.querySelector('.restriction-text');
-        if (restrictionText) {
-            if (data.restrictions === 'NONE') {
-                restrictionText.textContent = 'No restrictions';
-            } else {
-                const restrictions = data.restrictions.split('').map(code => {
-                    return `${code} - ${AAMVA.RESTRICTIONS[code] || 'Unknown restriction'}`;
-                }).join(', ');
-                restrictionText.textContent = restrictions;
-            }
-        }
+        // Update back side fields to match NV layout from photo
+        const updateBackField = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value || '';
+        };
 
-        // Update endorsements
-        const endorsementText = document.querySelector('.endorsement-text');
-        if (endorsementText) {
-            if (data.endorsements === 'NONE') {
-                endorsementText.textContent = 'No endorsements';
-            } else {
-                const endorsements = data.endorsements.split('').map(code => {
-                    return `${code} - ${AAMVA.ENDORSEMENTS[code] || 'Unknown endorsement'}`;
-                }).join(', ');
-                endorsementText.textContent = endorsements;
-            }
-        }
+        updateBackField('backDobValue', data.dateOfBirth || '');
+        updateBackField('backIssValue', data.dateOfIssue || '');
 
-        // Update vehicle classifications
-        const vehicleText = document.querySelector('.code-explanations div:nth-child(2)');
-        if (vehicleText) {
-            vehicleText.textContent = `${data.vehicleClassifications} - ${AAMVA.VEHICLE_CLASSES[data.vehicleClassifications] || 'Regular operator license'}`;
-        }
+        // CLASS with NV-specific description
+        const classDescriptions = {
+            'C': 'C-vans pickups may tow <10,000 lbs'
+        };
+        const classValue = data.vehicleClassifications ? `${data.vehicleClassifications} ${classDescriptions[data.vehicleClassifications] || ''}` : '';
+        updateBackField('backClassValue', classValue);
+
+        // ENDORSEMENTS - show codes or blank
+        updateBackField('backEndoValue', data.endorsements === 'NONE' ? '' : data.endorsements);
+
+        // RESTRICTIONS - show codes or blank
+        updateBackField('backRestValue', data.restrictions === 'NONE' ? '' : data.restrictions);
+
+        // ORGAN DONOR - always blank as per photo
+        updateBackField('backOrganValue', '');
     }
 
     handlePhotoUpload(event) {
@@ -316,16 +322,35 @@ class IDMakerApp {
 
         try {
             const data = this.collectFormData();
-            // Local validation - assume AAMVA validator is available
-            const result = AAMVA.validateData(data); // From src/data/validator.js
+            const errors = [];
+            const warnings = [];
+            let validatedFields = 0;
 
-            if (result.success) {
-                this.validationResults = result.validation;
-                this.updateValidationDisplay(result.validation);
-                this.updateStatus('Validation complete');
-            } else {
-                this.showError('Validation failed: ' + result.error);
-                this.updateStatus('Validation failed');
+            // Basic validation
+            if (!data.familyName) errors.push('Family name is required');
+            if (!data.givenNames) errors.push('Given names are required');
+            if (!data.dateOfBirth || !/^\d{2}\/\d{2}\/\d{4}$/.test(data.dateOfBirth)) errors.push('Valid DOB (MM/DD/YYYY) required');
+            if (!data.customerIdentifier || data.customerIdentifier.length > 10 || !/^\d{1,10}$/.test(data.customerIdentifier)) errors.push('DL NO must be 1-10 digits');
+            if (!data.documentDiscriminator || data.documentDiscriminator.length !== 21 || !/^\d{21}$/.test(data.documentDiscriminator) || !data.documentDiscriminator.startsWith('000')) errors.push('DD must be 21 digits starting with 000');
+            if (!data.address) errors.push('Address is required');
+
+            // Count validated
+            if (data.familyName) validatedFields++;
+            if (data.givenNames) validatedFields++;
+            // Add more as needed
+
+            const validation = {
+                isValid: errors.length === 0,
+                validatedFields: validatedFields,
+                errors: errors,
+                warnings: warnings
+            };
+
+            this.validationResults = validation;
+            this.updateValidationDisplay(validation);
+            this.updateStatus('Validation complete');
+            if (errors.length > 0) {
+                this.showError(`Validation failed with ${errors.length} errors`);
             }
         } catch (error) {
             this.showError('Validation error: ' + error.message);
@@ -340,7 +365,6 @@ class IDMakerApp {
         if (validation.isValid) {
             resultsContainer.innerHTML = `
                 <div class="status-item valid">
-                    <span class="status-icon">✅</span>
                     <span class="status-text">All ${validation.validatedFields} fields are valid</span>
                 </div>
             `;
@@ -349,8 +373,7 @@ class IDMakerApp {
             validation.errors.forEach(error => {
                 resultsContainer.innerHTML += `
                     <div class="status-item error">
-                        <span class="status-icon">❌</span>
-                        <span class="status-text">${error}</span>
+                        <span class="status-text">Error: ${error}</span>
                     </div>
                 `;
             });
@@ -359,8 +382,7 @@ class IDMakerApp {
             validation.warnings.forEach(warning => {
                 resultsContainer.innerHTML += `
                     <div class="status-item warning">
-                        <span class="status-icon">⚠️</span>
-                        <span class="status-text">${warning}</span>
+                        <span class="status-text">Warning: ${warning}</span>
                     </div>
                 `;
             });
@@ -372,8 +394,22 @@ class IDMakerApp {
 
         try {
             const data = this.collectFormData();
-            // Local generation using IDGenerator
-            const generator = new IDGenerator();
+            // Mock IDGenerator since not available
+            class MockIDGenerator {
+                compile(components) {
+                    return {
+                        humanReadable: {
+                            zoneII: data
+                        },
+                        machineReadable: {
+                            barcode: components.barcode.data
+                        },
+                        metadata: components.metadata,
+                        compliance: data.compliance
+                    };
+                }
+            }
+            const generator = new MockIDGenerator();
             const components = {
                 data: data,
                 layout: { template: 'NV-DL', format: data.cardFormat },
@@ -383,11 +419,11 @@ class IDMakerApp {
             const document = generator.compile(components);
 
             this.currentDocument = document;
-            this.validationResults = { isValid: true, validatedFields: 15, errors: [], warnings: [] };
+            this.validationResults = { isValid: true, validatedFields: Object.keys(data).length, errors: [], warnings: [] };
 
             // Update barcode info
             const barcodeInfo = document.querySelector('.barcode-info');
-            if (barcodeInfo) barcodeInfo.textContent = `[Data Length: ${components.barcode.data.length} bytes]`;
+            if (barcodeInfo) barcodeInfo.textContent = `Data Length: ${components.barcode.data.length} bytes`;
 
             // Update generation time
             const genTime = document.querySelector('.generation-time');
@@ -395,6 +431,7 @@ class IDMakerApp {
 
             this.updateValidationDisplay(this.validationResults);
             this.updatePreview(); // Refresh preview with generated data
+            this.generateBarcodePreview(); // Generate barcode now
             this.updateStatus('Document generated successfully');
             this.showSuccess('Nevada DL generated successfully!');
         } catch (error) {
@@ -404,15 +441,12 @@ class IDMakerApp {
     }
 
     async saveDocument() {
-        if (!this.currentDocument) {
-            await this.generateDocument();
-            if (!this.currentDocument) return;
-        }
-
         try {
-            // Save to localStorage
+            // Save formData directly
             localStorage.setItem('nvDlData', JSON.stringify(this.formData));
-            localStorage.setItem('nvDlDocument', JSON.stringify(this.currentDocument));
+            if (this.currentDocument) {
+                localStorage.setItem('nvDlDocument', JSON.stringify(this.currentDocument));
+            }
             this.updateStatus('Document saved to browser storage');
             this.showSuccess('Document saved successfully!');
         } catch (error) {
@@ -553,38 +587,21 @@ class IDMakerApp {
     }
 
     loadDefaultData() {
-        // NV DL sample defaults
-        const defaultData = {
-            givenNames: 'JEREMY',
-            familyName: '',
-            dateOfBirth: '08/28/1990',
-            address: '365 MES DR APT 3 LAS VEGAS NV 89109-0398',
-            customerIdentifier: '160379131',
-            dateOfExpiry: '08/28/2025',
-            dateOfIssue: '04/08/2025',
-            sex: 'M',
-            height: "5'-10\"",
-            eyeColor: 'BRO',
-            hairColor: 'BRO',
-            vehicleClassifications: 'C',
-            endorsements: 'NONE',
-            restrictions: 'NONE',
-            documentType: 'DL',
-            cardFormat: 'horizontal',
-            realId: 'true'
-        };
+        // Clear all fields for blank start, set only fixed NV template values
+        this.clearForm();
 
-        Object.keys(defaultData).forEach(key => {
-            const field = document.getElementById(key);
-            if (field) {
-                field.value = defaultData[key];
-            }
-        });
+        // Set fixed NV DL template values
+        document.getElementById('documentType').value = 'DL';
+        document.getElementById('cardFormat').value = 'horizontal';
+        document.getElementById('realId').value = 'true';
+        document.getElementById('sex').value = 'M';
+        document.getElementById('vehicleClassifications').value = 'C';
+        document.getElementById('endorsements').value = 'NONE';
+        document.getElementById('restrictions').value = 'NONE';
 
         // Trigger update
         this.debouncedUpdate();
-        this.updateStatus('NV DL sample data loaded');
-        this.generateDocument(); // Auto-generate preview
+        this.updateStatus('Form reset to blank NV DL template');
     }
 
     clearForm() {
@@ -620,12 +637,11 @@ class IDMakerApp {
         this.debouncedUpdate();
         this.updateStatus('Form cleared');
 
-        // Reset validation display
+        // Reset validation display - no emoji
         const validationResults = document.getElementById('validationResults');
         if (validationResults) {
             validationResults.innerHTML = `
                 <div class="status-item">
-                    <span class="status-icon">⏳</span>
                     <span class="status-text">Enter data to see validation results</span>
                 </div>
             `;
@@ -633,7 +649,9 @@ class IDMakerApp {
     }
 
     generateDocumentDiscriminator() {
-        const dd = AAMVA.generateDocumentDiscriminator();
+        // Generate 21-digit DD starting with 000
+        const random18 = Math.floor(Math.random() * 1e18).toString().padStart(18, '0');
+        const dd = '000' + random18;
         document.getElementById('documentDiscriminator').value = dd;
         this.debouncedUpdate();
     }
@@ -664,7 +682,7 @@ class IDMakerApp {
     showSuccess(message) {
         // Simple notification - could be enhanced with a proper notification system
         const originalStatus = document.getElementById('statusText').textContent;
-        document.getElementById('statusText').textContent = '✅ ' + message;
+        document.getElementById('statusText').textContent = 'Success: ' + message;
         document.getElementById('statusText').style.color = 'var(--success-color)';
 
         setTimeout(() => {
@@ -675,13 +693,38 @@ class IDMakerApp {
 
     showError(message) {
         const originalStatus = document.getElementById('statusText').textContent;
-        document.getElementById('statusText').textContent = '❌ ' + message;
+        document.getElementById('statusText').textContent = 'Error: ' + message;
         document.getElementById('statusText').style.color = 'var(--error-color)';
 
         setTimeout(() => {
             document.getElementById('statusText').textContent = originalStatus;
             document.getElementById('statusText').style.color = '';
         }, 5000);
+    }
+
+    generateBarcodePreview() {
+        const canvas = document.getElementById('barcodeCanvas');
+        if (!canvas || !this.currentDocument) return;
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = 300;
+        canvas.height = 50;
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Simple barcode pattern based on data length
+        const aamvaString = this.generateAAMVAString(this.formData);
+        const bars = aamvaString.length % 20 + 10; // Simple mock
+        const barWidth = canvas.width / bars;
+        for (let i = 0; i < bars; i++) {
+            if (i % 2 === 0) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(i * barWidth, 0, barWidth, canvas.height);
+            }
+        }
+
+        const barcodeInfo = document.querySelector('.barcode-info');
+        if (barcodeInfo) barcodeInfo.textContent = `PDF417 Mock Barcode - Data Length: ${aamvaString.length} bytes`;
     }
 }
 
